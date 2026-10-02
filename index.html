@@ -6,8 +6,11 @@
 
   <title>Diizam Method</title>
 
-  <!-- ONNX Runtime Web + WebGPU -->
+  <!-- ONNX Runtime Web -->
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/ort.webgpu.min.js"></script>
+
+  <!-- Mediabunny -->
+  <script src="https://cdn.jsdelivr.net/npm/mediabunny@1.29.0/dist/index.cjs"></script>
 
   <style>
     * {
@@ -91,332 +94,404 @@
 
 <body>
 
-  <div class="box">
+<div class="box">
 
-    <h1>DIIZAM METHOD</h1>
+  <h1>DIIZAM METHOD</h1>
 
-    <div class="subtitle">
-      Video Processing
-    </div>
-
-    <input
-      type="file"
-      id="videoInput"
-      accept="video/*"
-    >
-
-    <select id="method">
-      <option value="original">Original</option>
-      <option value="hd">HD Quality</option>
-      <option value="60">60 FPS</option>
-      <option value="120">120 FPS</option>
-      <option value="true60">True 60 FPS</option>
-      <option value="true120">True 120 FPS</option>
-    </select>
-
-    <button onclick="processVideo()">
-      PROCESS VIDEO
-    </button>
-
-    <button onclick="testRIFE()">
-      TEST RIFE
-    </button>
-
-    <video
-      id="preview"
-      controls
-    ></video>
-
-    <div id="status">
-      Pilih video terlebih dahulu.
-    </div>
-
-    <a
-      id="download"
-      download="diizam-output.mp4"
-    >
-      DOWNLOAD VIDEO
-    </a>
-
+  <div class="subtitle">
+    Video Processing
   </div>
 
+  <input
+    type="file"
+    id="videoInput"
+    accept="video/*"
+  >
 
-  <script>
+  <select id="method">
+    <option value="original">Original</option>
+    <option value="hd">HD Quality</option>
+    <option value="60">60 FPS</option>
+    <option value="120">120 FPS</option>
+    <option value="true60">True 60 FPS</option>
+    <option value="true120">True 120 FPS</option>
+  </select>
 
-    const videoInput =
-      document.getElementById("videoInput");
+  <button onclick="processVideo()">
+    PROCESS VIDEO
+  </button>
 
-    const preview =
-      document.getElementById("preview");
+  <button onclick="testRIFE()">
+    TEST RIFE
+  </button>
 
-    const status =
-      document.getElementById("status");
+  <button onclick="testCodec()">
+    TEST CODEC
+  </button>
 
-    const download =
-      document.getElementById("download");
+  <video
+    id="preview"
+    controls
+  ></video>
+
+  <div id="status">
+    Pilih video terlebih dahulu.
+  </div>
+
+  <a
+    id="download"
+    download="diizam-output.mp4"
+  >
+    DOWNLOAD VIDEO
+  </a>
+
+</div>
 
 
-    const BACKEND_URL =
-      "https://diizam-production.up.railway.app";
+<script>
+
+const videoInput =
+  document.getElementById("videoInput");
+
+const preview =
+  document.getElementById("preview");
+
+const status =
+  document.getElementById("status");
+
+const download =
+  document.getElementById("download");
 
 
-    /*
-      PILIH VIDEO
-    */
+const BACKEND_URL =
+  "https://diizam-production.up.railway.app";
 
-    videoInput.addEventListener(
-      "change",
-      function () {
 
-        const file = this.files[0];
+/* =========================
+   PILIH VIDEO
+========================= */
 
-        if (!file) return;
+videoInput.addEventListener(
+  "change",
+  function () {
 
-        const url =
-          URL.createObjectURL(file);
+    const file = this.files[0];
 
-        preview.src = url;
+    if (!file) return;
 
-        preview.style.display = "block";
+    const url =
+      URL.createObjectURL(file);
 
-        download.style.display = "none";
+    preview.src = url;
 
-        status.textContent =
-          "Video siap. Pilih method lalu tekan PROCESS VIDEO.";
+    preview.style.display =
+      "block";
 
-      }
+    download.style.display =
+      "none";
+
+    status.textContent =
+      "Video siap. Pilih method lalu tekan PROCESS VIDEO.";
+
+  }
+);
+
+
+/* =========================
+   PROCESS VIDEO
+========================= */
+
+async function processVideo() {
+
+  const file =
+    videoInput.files[0];
+
+  if (!file) {
+
+    status.textContent =
+      "Pilih video terlebih dahulu.";
+
+    return;
+  }
+
+
+  const method =
+    document.getElementById("method").value;
+
+
+  if (
+    method === "true60" ||
+    method === "true120"
+  ) {
+
+    status.textContent =
+      "True FPS belum diaktifkan.";
+
+    return;
+  }
+
+
+  if (method === "original") {
+
+    status.textContent =
+      "Pilih method terlebih dahulu.";
+
+    return;
+  }
+
+
+  status.textContent =
+    "Mengupload dan memproses video...";
+
+
+  download.style.display =
+    "none";
+
+
+  const formData =
+    new FormData();
+
+
+  formData.append(
+    "video",
+    file
+  );
+
+
+  formData.append(
+    "method",
+    method
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        BACKEND_URL + "/process",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Server gagal memproses video."
+      );
+
+    }
+
+
+    const blob =
+      await response.blob();
+
+
+    const url =
+      URL.createObjectURL(blob);
+
+
+    download.href =
+      url;
+
+    download.style.display =
+      "block";
+
+
+    status.textContent =
+      "Selesai! Video berhasil diproses.";
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "Gagal memproses video.";
+
+  }
+
+}
+
+
+/* =========================
+   TEST RIFE
+========================= */
+
+async function testRIFE() {
+
+  alert(
+    "TEST RIFE berhasil ditekan. Memuat model..."
+  );
+
+
+  try {
+
+    if (!window.ort) {
+
+      alert(
+        "ONNX Runtime tidak termuat."
+      );
+
+      return;
+    }
+
+
+    if (!navigator.gpu) {
+
+      alert(
+        "WebGPU tidak tersedia."
+      );
+
+      return;
+    }
+
+
+    status.textContent =
+      "Memuat model RIFE... Tunggu.";
+
+
+    const session =
+      await ort.InferenceSession.create(
+
+        "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
+
+        {
+          executionProviders: [
+            "webgpu"
+          ]
+        }
+
+      );
+
+
+    console.log(
+      "RIFE:",
+      session
     );
 
 
-    /*
-      PROCESS VIDEO
-    */
-let rifeSession = null;
+    status.textContent =
+      "RIFE WebGPU siap!";
 
-async function loadRIFE() {
-  if (rifeSession) return rifeSession;
 
-  status.textContent = "Memuat RIFE...";
+    alert(
+      "RIFE WebGPU siap!"
+    );
 
-  rifeSession = await ort.InferenceSession.create(
-    "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
-    {
-      executionProviders: ["webgpu"]
-    }
-  );
+  }
 
-  status.textContent = "RIFE siap!";
-  return rifeSession;
+  catch (error) {
+
+    console.error(
+      "RIFE ERROR:",
+      error
+    );
+
+
+    status.textContent =
+      "RIFE gagal dimuat.";
+
+
+    alert(
+      "RIFE gagal:\n" +
+      error.message
+    );
+
+  }
+
 }
-    async function processVideo() {
-
-      const file =
-        videoInput.files[0];
-
-      if (!file) {
-
-        status.textContent =
-          "Pilih video terlebih dahulu.";
-
-        return;
-      }
 
 
-      const method =
-        document.getElementById("method").value;
+/* =========================
+   TEST CODEC
+========================= */
+
+async function testCodec() {
+
+  try {
+
+    status.textContent =
+      "Mengecek codec video...";
 
 
-      /*
-        TRUE FPS NANTI AKAN DIPROSES
-        LANGSUNG DI BROWSER DENGAN RIFE.
-      */
-
-      if (
-        method === "true60" ||
-        method === "true120"
-      ) {
-
-        status.textContent =
-          "True FPS belum diaktifkan. Gunakan TEST RIFE terlebih dahulu.";
-
-        return;
-      }
-
-
-      if (method === "original") {
-
-        status.textContent =
-          "Pilih salah satu method terlebih dahulu.";
-
-        return;
-      }
-
-
-      status.textContent =
-        "Mengupload dan memproses video... Tunggu.";
-
-      download.style.display =
-        "none";
-
-
-      const formData =
-        new FormData();
-
-
-      formData.append(
-        "video",
-        file
-      );
-
-
-      formData.append(
-        "method",
-        method
-      );
-
-
-      try {
-
-        const response =
-          await fetch(
-            BACKEND_URL + "/process",
-            {
-              method: "POST",
-              body: formData
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Server gagal memproses video."
-          );
-
-        }
-
-
-        const blob =
-          await response.blob();
-
-
-        const url =
-          URL.createObjectURL(blob);
-
-
-        download.href =
-          url;
-
-        download.style.display =
-          "block";
-
-
-        status.textContent =
-          "Selesai! Video berhasil diproses.";
-
-      }
-
-      catch (error) {
-
-        console.error(error);
-
-        status.textContent =
-          "Gagal memproses video. Coba lagi.";
-
-      }
-
-    }
-
-
-    /*
-      TEST RIFE + WEBGPU
-    */
-
-    async function testRIFE() {
+    if (
+      typeof Mediabunny === "undefined"
+    ) {
 
       alert(
-        "TEST RIFE berhasil ditekan. Memuat model..."
+        "Mediabunny tidak termuat."
+      );
+
+      return;
+    }
+
+
+    const codecs =
+      await Mediabunny.getEncodableVideoCodecs(
+        ["avc", "vp9", "av1"]
       );
 
 
-      try {
-
-        if (!window.ort) {
-
-          alert(
-            "ONNX Runtime tidak termuat."
-          );
-
-          return;
-        }
+    console.log(
+      "Codec tersedia:",
+      codecs
+    );
 
 
-        if (!navigator.gpu) {
+    if (
+      codecs.includes("avc")
+    ) {
 
-          alert(
-            "WebGPU tidak tersedia di browser ini."
-          );
-
-          return;
-        }
+      status.textContent =
+        "H.264 / AVC tersedia!";
 
 
-        status.textContent =
-          "Memuat model RIFE... Tunggu.";
-
-
-        const session =
-          await ort.InferenceSession.create(
-
-            "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
-
-            {
-              executionProviders: [
-                "webgpu"
-              ]
-            }
-
-          );
-
-
-        console.log(
-          "RIFE session:",
-          session
-        );
-
-
-        status.textContent =
-          "RIFE WebGPU siap!";
-
-
-        alert(
-          "RIFE WebGPU siap!"
-        );
-
-      }
-
-      catch (error) {
-
-        console.error(
-          "RIFE ERROR:",
-          error
-        );
-
-
-        status.textContent =
-          "RIFE gagal dimuat.";
-
-
-        alert(
-          "RIFE gagal dimuat:\n" +
-          error.message
-        );
-
-      }
+      alert(
+        "H.264 / AVC tersedia!"
+      );
 
     }
 
-  </script>
+    else {
+
+      status.textContent =
+        "H.264 / AVC tidak tersedia.";
+
+
+      alert(
+        "H.264 / AVC tidak tersedia."
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "CODEC ERROR:",
+      error
+    );
+
+
+    status.textContent =
+      "Tes codec gagal.";
+
+
+    alert(
+      "Tes codec gagal:\n" +
+      error.message
+    );
+
+  }
+
+}
+
+</script>
 
 </body>
 </html>
