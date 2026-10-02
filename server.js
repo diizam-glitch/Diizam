@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
 const { exec } = require("child_process");
-const path = require("path");
 const fs = require("fs");
 
 const app = express();
@@ -25,9 +24,26 @@ app.post("/process", upload.single("video"), (req, res) => {
 
   const input = req.file.path;
   const output = `/tmp/output_${Date.now()}.mp4`;
-  const fps = req.body.fps || "60";
+  const method = req.body.method || "original";
 
-  const command = `ffmpeg -i "${input}" -vf "fps=${fps}" -c:v libx264 -preset veryfast -crf 23 -c:a aac "${output}"`;
+  let filter = "";
+
+  if (method === "hd") {
+    filter = "scale=1920:1080:force_original_aspect_ratio=decrease";
+  } else if (method === "60") {
+    filter = "fps=60";
+  } else if (method === "120") {
+    filter = "fps=120";
+  }
+
+  const videoFilter = filter
+    ? `-vf "${filter}"`
+    : "";
+
+  const command =
+    `ffmpeg -i "${input}" ${videoFilter} ` +
+    `-c:v libx264 -preset veryfast -crf 20 ` +
+    `-c:a aac -b:a 192k "${output}"`;
 
   exec(command, (error) => {
     if (error) {
