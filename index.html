@@ -1,105 +1,203 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Diizam Method</title>
 
-  <!-- ONNX Runtime Web -->
-  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/ort.webgpu.min.js"></script>
+
+  <!-- =========================
+       ONNX RUNTIME WEB
+  ========================== -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/ort.webgpu.min.js">
+  </script>
+
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       min-height: 100vh;
+
       background: #101010;
+
       color: white;
+
       font-family: Arial, sans-serif;
+
       display: flex;
+
       justify-content: center;
+
       align-items: center;
+
     }
+
 
     .box {
+
       width: 90%;
+
       max-width: 500px;
+
       padding: 30px 20px;
+
       background: #1c1c1c;
+
       border-radius: 20px;
+
       text-align: center;
+
     }
+
 
     h1 {
+
       margin-bottom: 5px;
+
     }
 
+
     .subtitle {
+
       color: #999;
+
       margin-bottom: 25px;
+
     }
+
 
     input,
     select,
     button {
+
       width: 100%;
+
       padding: 14px;
+
       margin-top: 10px;
+
       border-radius: 10px;
+
       font-size: 15px;
+
     }
+
 
     input,
     select {
+
       background: #292929;
+
       color: white;
+
       border: 1px solid #444;
+
     }
+
 
     button {
+
       border: none;
+
       background: white;
+
       color: black;
+
       font-weight: bold;
+
       cursor: pointer;
+
     }
+
+
+    button:disabled {
+
+      opacity: 0.5;
+
+      cursor: not-allowed;
+
+    }
+
 
     video {
+
       width: 100%;
+
       margin-top: 20px;
+
       border-radius: 10px;
+
       display: none;
+
     }
+
 
     #status {
+
       color: #aaa;
+
       margin-top: 20px;
+
       font-size: 14px;
+
       line-height: 1.5;
+
     }
 
+
     #download {
+
       display: none;
+
       margin-top: 15px;
+
       color: white;
+
       font-weight: bold;
+
     }
+
   </style>
+
 </head>
+
 
 <body>
 
+
 <div class="box">
 
-  <h1>DIIZAM METHOD</h1>
+
+  <h1>
+    DIIZAM METHOD
+  </h1>
+
 
   <div class="subtitle">
     Video Processing
   </div>
+
+
+  <!-- =========================
+       VIDEO INPUT
+  ========================== -->
 
   <input
     type="file"
@@ -107,35 +205,96 @@
     accept="video/*"
   >
 
+
+  <!-- =========================
+       METHOD
+  ========================== -->
+
   <select id="method">
-    <option value="original">Original</option>
-    <option value="hd">HD Quality</option>
-    <option value="60">60 FPS</option>
-    <option value="120">120 FPS</option>
-    <option value="true60">True 60 FPS</option>
-    <option value="true120">True 120 FPS</option>
+
+    <option value="original">
+      Original
+    </option>
+
+    <option value="hd">
+      HD Quality
+    </option>
+
+    <option value="60">
+      60 FPS
+    </option>
+
+    <option value="120">
+      120 FPS
+    </option>
+
+    <option value="true60">
+      True 60 FPS
+    </option>
+
+    <option value="true120">
+      True 120 FPS
+    </option>
+
   </select>
 
-  <button onclick="processVideo()">
+
+  <!-- =========================
+       PROCESS
+  ========================== -->
+
+  <button
+    id="processButton"
+    onclick="processVideo()"
+  >
     PROCESS VIDEO
   </button>
 
-  <button onclick="testRIFE()">
+
+  <!-- =========================
+       TEST RIFE
+  ========================== -->
+
+  <button
+    onclick="testRIFE()"
+  >
     TEST RIFE
   </button>
 
-  <button onclick="testCodec()">
+
+  <!-- =========================
+       TEST CODEC
+  ========================== -->
+
+  <button
+    onclick="testCodec()"
+  >
     TEST CODEC
   </button>
+
+
+  <!-- =========================
+       PREVIEW
+  ========================== -->
 
   <video
     id="preview"
     controls
   ></video>
 
+
+  <!-- =========================
+       STATUS
+  ========================== -->
+
   <div id="status">
     Pilih video terlebih dahulu.
   </div>
+
+
+  <!-- =========================
+       DOWNLOAD
+  ========================== -->
 
   <a
     id="download"
@@ -144,71 +303,140 @@
     DOWNLOAD VIDEO
   </a>
 
+
 </div>
 
 
-<!-- =========================
-     MEDIABUNNY ESM
-========================= -->
+<!-- =====================================================
+     MEDIABUNNY
+====================================================== -->
 
 <script type="module">
 
-  import * as Mediabunny
-    from "https://cdn.jsdelivr.net/npm/mediabunny@1.61.0/+esm";
+  try {
 
-  window.Mediabunny = Mediabunny;
+    const MediabunnyModule =
+      await import(
+        "https://cdn.jsdelivr.net/npm/mediabunny@1.61.0/+esm"
+      );
 
-  console.log(
-    "Mediabunny berhasil dimuat:",
-    window.Mediabunny
-  );
 
-  window.MediabunnyReady = true;
+    window.Mediabunny =
+      MediabunnyModule;
+
+
+    window.MediabunnyReady =
+      true;
+
+
+    console.log(
+      "Mediabunny berhasil dimuat:",
+      window.Mediabunny
+    );
+
+  }
+
+  catch (error) {
+
+    window.MediabunnyReady =
+      false;
+
+
+    console.error(
+      "Mediabunny gagal dimuat:",
+      error
+    );
+
+  }
 
 </script>
 
 
+<!-- =====================================================
+     MAIN JAVASCRIPT
+====================================================== -->
+
 <script>
 
+
+/* =====================================================
+   ELEMENT
+====================================================== */
+
 const videoInput =
-  document.getElementById("videoInput");
+  document.getElementById(
+    "videoInput"
+  );
+
 
 const preview =
-  document.getElementById("preview");
+  document.getElementById(
+    "preview"
+  );
+
 
 const status =
-  document.getElementById("status");
+  document.getElementById(
+    "status"
+  );
+
 
 const download =
-  document.getElementById("download");
+  document.getElementById(
+    "download"
+  );
 
+
+const processButton =
+  document.getElementById(
+    "processButton"
+  );
+
+
+/* =====================================================
+   BACKEND
+====================================================== */
 
 const BACKEND_URL =
   "https://diizam-production.up.railway.app";
 
 
-/* =========================
-   PILIH VIDEO
-========================= */
+/* =====================================================
+   PREVIEW VIDEO
+====================================================== */
 
 videoInput.addEventListener(
   "change",
   function () {
 
-    const file = this.files[0];
+    const file =
+      this.files[0];
 
-    if (!file) return;
+
+    if (!file) {
+
+      return;
+
+    }
+
 
     const url =
-      URL.createObjectURL(file);
+      URL.createObjectURL(
+        file
+      );
 
-    preview.src = url;
+
+    preview.src =
+      url;
+
 
     preview.style.display =
       "block";
 
+
     download.style.display =
       "none";
+
 
     status.textContent =
       "Video siap. Pilih method lalu tekan PROCESS VIDEO.";
@@ -217,14 +445,16 @@ videoInput.addEventListener(
 );
 
 
-/* =========================
+/* =====================================================
    PROCESS VIDEO
-========================= */
+====================================================== */
 
 async function processVideo() {
 
+
   const file =
     videoInput.files[0];
+
 
   if (!file) {
 
@@ -232,40 +462,78 @@ async function processVideo() {
       "Pilih video terlebih dahulu.";
 
     return;
+
   }
 
 
   const method =
-    document.getElementById("method").value;
+    document
+      .getElementById("method")
+      .value;
 
+
+  /* =========================
+     TRUE FPS
+  ========================== */
 
   if (
-    method === "true60" ||
-    method === "true120"
+    method === "true60"
   ) {
 
-    status.textContent =
-      "True FPS sedang dalam tahap pengaktifan.";
+    await processTrueFPS(
+      file,
+      60
+    );
 
     return;
+
   }
 
 
-  if (method === "original") {
+  if (
+    method === "true120"
+  ) {
+
+    await processTrueFPS(
+      file,
+      120
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     ORIGINAL
+  ========================== */
+
+  if (
+    method === "original"
+  ) {
 
     status.textContent =
       "Pilih method terlebih dahulu.";
 
     return;
+
   }
 
 
-  status.textContent =
-    "Mengupload dan memproses video...";
+  /* =========================
+     BACKEND PROCESSING
+  ========================== */
+
+  processButton.disabled =
+    true;
 
 
   download.style.display =
     "none";
+
+
+  status.textContent =
+    "Mengupload dan memproses video...";
 
 
   const formData =
@@ -286,13 +554,21 @@ async function processVideo() {
 
   try {
 
+
     const response =
       await fetch(
-        BACKEND_URL + "/process",
+
+        BACKEND_URL +
+        "/process",
+
         {
+
           method: "POST",
+
           body: formData
+
         }
+
       );
 
 
@@ -310,11 +586,22 @@ async function processVideo() {
 
 
     const url =
-      URL.createObjectURL(blob);
+      URL.createObjectURL(
+        blob
+      );
+
+
+    preview.src =
+      url;
+
+
+    preview.style.display =
+      "block";
 
 
     download.href =
       url;
+
 
     download.style.display =
       "block";
@@ -325,7 +612,9 @@ async function processVideo() {
 
   }
 
+
   catch (error) {
+
 
     console.error(
       "PROCESS ERROR:",
@@ -339,14 +628,23 @@ async function processVideo() {
 
   }
 
+
+  finally {
+
+    processButton.disabled =
+      false;
+
+  }
+
 }
 
 
-/* =========================
+/* =====================================================
    TEST RIFE
-========================= */
+====================================================== */
 
 async function testRIFE() {
+
 
   alert(
     "TEST RIFE ditekan. Memuat model..."
@@ -355,28 +653,27 @@ async function testRIFE() {
 
   try {
 
+
     if (!window.ort) {
 
-      alert(
+      throw new Error(
         "ONNX Runtime tidak termuat."
       );
 
-      return;
     }
 
 
     if (!navigator.gpu) {
 
-      alert(
+      throw new Error(
         "WebGPU tidak tersedia."
       );
 
-      return;
     }
 
 
     status.textContent =
-      "Memuat model RIFE...";
+      "Memuat RIFE AI...";
 
 
     const session =
@@ -385,16 +682,23 @@ async function testRIFE() {
         "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
 
         {
-          executionProviders: [
-            "webgpu"
-          ]
+
+          executionProviders:
+            [
+              "webgpu"
+            ]
+
         }
 
       );
 
 
+    window.rifeSession =
+      session;
+
+
     console.log(
-      "RIFE session:",
+      "RIFE:",
       session
     );
 
@@ -409,7 +713,9 @@ async function testRIFE() {
 
   }
 
+
   catch (error) {
+
 
     console.error(
       "RIFE ERROR:",
@@ -431,61 +737,63 @@ async function testRIFE() {
 }
 
 
-/* =========================
+/* =====================================================
    TEST CODEC
-========================= */
+====================================================== */
 
 async function testCodec() {
 
+
   try {
+
 
     status.textContent =
       "Mengecek Mediabunny...";
 
 
-    /*
-      Karena Mediabunny dimuat sebagai
-      ES Module, tunggu sampai siap.
-    */
+    let tries =
+      0;
 
-    let tries = 0;
 
     while (
+
       !window.Mediabunny &&
+
       tries < 50
+
     ) {
+
 
       await new Promise(
         resolve =>
-          setTimeout(resolve, 100)
+          setTimeout(
+            resolve,
+            100
+          )
       );
+
 
       tries++;
 
     }
 
 
-    if (!window.Mediabunny) {
+    if (
+      !window.Mediabunny
+    ) {
 
-      alert(
+
+      throw new Error(
         "Mediabunny gagal dimuat."
       );
 
-      status.textContent =
-        "Mediabunny gagal dimuat.";
-
-      return;
     }
 
 
-    status.textContent =
-      "Mediabunny berhasil dimuat. Mengecek codec...";
-
-
     const codecs =
-      await window.Mediabunny.getEncodableVideoCodecs(
-        ["avc", "vp9", "av1"]
-      );
+      await
+      window.Mediabunny
+        .getEncodableVideoCodecs();
 
 
     console.log(
@@ -497,6 +805,7 @@ async function testCodec() {
     if (
       codecs.includes("avc")
     ) {
+
 
       status.textContent =
         "H.264 / AVC tersedia!";
@@ -511,12 +820,13 @@ async function testCodec() {
 
     else {
 
+
       status.textContent =
-        "Mediabunny berhasil, tetapi H.264 tidak tersedia.";
+        "Mediabunny aktif, tetapi H.264 tidak tersedia.";
 
 
       alert(
-        "Mediabunny berhasil dimuat.\n\n" +
+        "Mediabunny aktif.\n\n" +
         "H.264 / AVC tidak tersedia."
       );
 
@@ -524,7 +834,9 @@ async function testCodec() {
 
   }
 
+
   catch (error) {
+
 
     console.error(
       "CODEC ERROR:",
@@ -545,7 +857,1039 @@ async function testCodec() {
 
 }
 
+
+/* =====================================================
+   TRUE FPS
+====================================================== */
+
+async function processTrueFPS(
+  file,
+  targetFPS
+) {
+
+
+  processButton.disabled =
+    true;
+
+
+  download.style.display =
+    "none";
+
+
+  try {
+
+
+    /* =========================
+       CEK LIBRARY
+    ========================== */
+
+    status.textContent =
+      "Menyiapkan True " +
+      targetFPS +
+      " FPS...";
+
+
+    if (!window.ort) {
+
+      throw new Error(
+        "ONNX Runtime tidak termuat."
+      );
+
+    }
+
+
+    if (!navigator.gpu) {
+
+      throw new Error(
+        "WebGPU tidak tersedia."
+      );
+
+    }
+
+
+    if (!window.Mediabunny) {
+
+      throw new Error(
+        "Mediabunny belum termuat."
+      );
+
+    }
+
+
+    /* =========================
+       LOAD RIFE
+    ========================== */
+
+    status.textContent =
+      "Memuat model RIFE...";
+
+
+    let rife =
+      window.rifeSession;
+
+
+    if (!rife) {
+
+
+      rife =
+        await ort.InferenceSession.create(
+
+          "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
+
+          {
+
+            executionProviders:
+              [
+                "webgpu"
+              ]
+
+          }
+
+        );
+
+
+      window.rifeSession =
+        rife;
+
+    }
+
+
+    /* =========================
+       MEDIABUNNY CLASSES
+    ========================== */
+
+    const {
+
+      Input,
+      BlobSource,
+      ALL_FORMATS,
+      CanvasSink,
+      Output,
+      BufferTarget,
+      Mp4OutputFormat,
+      CanvasSource,
+      Quality
+
+    } =
+      window.Mediabunny;
+
+
+    /* =========================
+       INPUT VIDEO
+    ========================== */
+
+    status.textContent =
+      "Membaca video...";
+
+
+    const input =
+      new Input({
+
+        formats:
+          ALL_FORMATS,
+
+        source:
+          new BlobSource(
+            file
+          )
+
+      });
+
+
+    const videoTrack =
+      await input
+        .getPrimaryVideoTrack();
+
+
+    if (!videoTrack) {
+
+      throw new Error(
+        "Video track tidak ditemukan."
+      );
+
+    }
+
+
+    /* =========================
+       VIDEO INFORMATION
+    ========================== */
+
+    const width =
+      videoTrack.displayWidth;
+
+
+    const height =
+      videoTrack.displayHeight;
+
+
+    const duration =
+      videoTrack.duration;
+
+
+    const sourceFPS =
+      videoTrack.frameRate ||
+      30;
+
+
+    console.log(
+      "Video:",
+      width,
+      height,
+      sourceFPS,
+      duration
+    );
+
+
+    /* =========================
+       BATAS RESOLUSI AI
+    ========================== */
+
+    const maxInferenceWidth =
+      640;
+
+
+    let aiWidth =
+      width;
+
+
+    let aiHeight =
+      height;
+
+
+    if (
+      aiWidth >
+      maxInferenceWidth
+    ) {
+
+
+      const scale =
+        maxInferenceWidth /
+        aiWidth;
+
+
+      aiWidth =
+        Math.round(
+          aiWidth *
+          scale
+        );
+
+
+      aiHeight =
+        Math.round(
+          aiHeight *
+          scale
+        );
+
+    }
+
+
+    /*
+      RIFE membutuhkan ukuran
+      yang merupakan kelipatan 32.
+    */
+
+    aiWidth =
+      Math.floor(
+        aiWidth / 32
+      ) * 32;
+
+
+    aiHeight =
+      Math.floor(
+        aiHeight / 32
+      ) * 32;
+
+
+    if (
+      aiWidth < 32
+    ) {
+
+      aiWidth =
+        32;
+
+    }
+
+
+    if (
+      aiHeight < 32
+    ) {
+
+      aiHeight =
+        32;
+
+    }
+
+
+    console.log(
+      "AI size:",
+      aiWidth,
+      aiHeight
+    );
+
+
+    /* =========================
+       INPUT CANVAS
+    ========================== */
+
+    const sink =
+      new CanvasSink(
+
+        videoTrack,
+
+        {
+
+          width:
+            aiWidth,
+
+          height:
+            aiHeight,
+
+          fit:
+            "fill",
+
+          poolSize:
+            3
+
+        }
+
+      );
+
+
+    /* =========================
+       OUTPUT CANVAS
+    ========================== */
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+
+    canvas.width =
+      aiWidth;
+
+
+    canvas.height =
+      aiHeight;
+
+
+    const ctx =
+      canvas.getContext(
+        "2d"
+      );
+
+
+    /* =========================
+       MP4 OUTPUT
+    ========================== */
+
+    status.textContent =
+      "Menyiapkan MP4...";
+
+
+    const output =
+      new Output({
+
+        format:
+          new Mp4OutputFormat({
+            fastStart:
+              "in-memory"
+          }),
+
+        target:
+          new BufferTarget()
+
+      });
+
+
+    const bitrate =
+      Math.max(
+
+        2_500_000,
+
+        aiWidth *
+        aiHeight *
+        5
+
+      );
+
+
+    const videoSource =
+      new CanvasSource(
+
+        canvas,
+
+        {
+
+          codec:
+            "avc",
+
+          quality:
+            new Quality({
+              bitrate:
+                bitrate
+            })
+
+        }
+
+      );
+
+
+    output.addVideoTrack(
+      videoSource,
+      {
+        frameRate:
+          targetFPS
+      }
+    );
+
+
+    await output.start();
+
+
+    /* =========================
+       HELPER
+    ========================== */
+
+    function canvasToTensor(
+      source
+    ) {
+
+
+      const sourceCtx =
+        source.getContext(
+          "2d"
+        );
+
+
+      const image =
+        sourceCtx.getImageData(
+
+          0,
+
+          0,
+
+          aiWidth,
+
+          aiHeight
+
+        );
+
+
+      const pixelCount =
+        aiWidth *
+        aiHeight;
+
+
+      const data =
+        new Float32Array(
+          pixelCount * 3
+        );
+
+
+      for (
+        let i = 0;
+        i < pixelCount;
+        i++
+      ) {
+
+
+        const p =
+          i * 4;
+
+
+        data[i] =
+          image.data[p] /
+          255;
+
+
+        data[
+          pixelCount + i
+        ] =
+          image.data[
+            p + 1
+          ] / 255;
+
+
+        data[
+          pixelCount * 2 + i
+        ] =
+          image.data[
+            p + 2
+          ] / 255;
+
+      }
+
+
+      return new ort.Tensor(
+
+        "float32",
+
+        data,
+
+        [
+          1,
+          3,
+          aiHeight,
+          aiWidth
+        ]
+
+      );
+
+    }
+
+
+    function tensorToCanvas(
+      tensor
+    ) {
+
+
+      const data =
+        tensor.data;
+
+
+      const image =
+        ctx.createImageData(
+
+          aiWidth,
+
+          aiHeight
+
+        );
+
+
+      const pixelCount =
+        aiWidth *
+        aiHeight;
+
+
+      for (
+        let i = 0;
+        i < pixelCount;
+        i++
+      ) {
+
+
+        const p =
+          i * 4;
+
+
+        image.data[p] =
+          Math.max(
+            0,
+            Math.min(
+              255,
+              data[i] *
+              255
+            )
+          );
+
+
+        image.data[
+          p + 1
+        ] =
+          Math.max(
+            0,
+            Math.min(
+              255,
+              data[
+                pixelCount + i
+              ] *
+              255
+            )
+          );
+
+
+        image.data[
+          p + 2
+        ] =
+          Math.max(
+            0,
+            Math.min(
+              255,
+              data[
+                pixelCount * 2 + i
+              ] *
+              255
+            )
+          );
+
+
+        image.data[
+          p + 3
+        ] =
+          255;
+
+      }
+
+
+      ctx.putImageData(
+        image,
+        0,
+        0
+      );
+
+    }
+
+
+    /* =========================
+       FRAME BUFFER
+    ========================== */
+
+    let previous =
+      null;
+
+
+    let frameIndex =
+      0;
+
+
+    let outputIndex =
+      0;
+
+
+    const frameDuration =
+      1 /
+      targetFPS;
+
+
+    const multiplier =
+      targetFPS /
+      sourceFPS;
+
+
+    /*
+      Jumlah frame baru
+      di antara dua frame asli.
+
+      30 -> 60 = 1
+      30 -> 120 = 3
+      60 -> 120 = 1
+    */
+
+    const intermediateCount =
+      Math.max(
+
+        0,
+
+        Math.round(
+          multiplier
+        ) - 1
+
+      );
+
+
+    /* =========================
+       PROCESS FRAME
+    ========================== */
+
+    for await (
+      const wrapped
+      of sink.canvases()
+    ) {
+
+
+      const frameCanvas =
+        wrapped.canvas ||
+        wrapped;
+
+
+      if (!previous) {
+
+
+        previous =
+          frameCanvas;
+
+
+        /*
+          Frame pertama
+        */
+
+        ctx.clearRect(
+          0,
+          0,
+          aiWidth,
+          aiHeight
+        );
+
+
+        ctx.drawImage(
+          previous,
+          0,
+          0,
+          aiWidth,
+          aiHeight
+        );
+
+
+        await videoSource.add(
+
+          outputIndex *
+          frameDuration,
+
+          frameDuration
+
+        );
+
+
+        outputIndex++;
+
+        frameIndex++;
+
+
+        continue;
+
+      }
+
+
+      /* =========================
+         FRAME A
+      ========================== */
+
+      const canvasA =
+        document.createElement(
+          "canvas"
+        );
+
+
+      canvasA.width =
+        aiWidth;
+
+
+      canvasA.height =
+        aiHeight;
+
+
+      const ctxA =
+        canvasA.getContext(
+          "2d"
+        );
+
+
+      ctxA.drawImage(
+
+        previous,
+
+        0,
+        0,
+
+        aiWidth,
+        aiHeight
+
+      );
+
+
+      /* =========================
+         FRAME B
+      ========================== */
+
+      const canvasB =
+        document.createElement(
+          "canvas"
+        );
+
+
+      canvasB.width =
+        aiWidth;
+
+
+      canvasB.height =
+        aiHeight;
+
+
+      const ctxB =
+        canvasB.getContext(
+          "2d"
+        );
+
+
+      ctxB.drawImage(
+
+        frameCanvas,
+
+        0,
+        0,
+
+        aiWidth,
+        aiHeight
+
+      );
+
+
+      const img0 =
+        canvasToTensor(
+          canvasA
+        );
+
+
+      const img1 =
+        canvasToTensor(
+          canvasB
+        );
+
+
+      /* =========================
+         RIFE INTERPOLATION
+      ========================== */
+
+      for (
+        let j = 0;
+        j <= intermediateCount;
+        j++
+      ) {
+
+
+        if (
+          j === 0
+        ) {
+
+
+          ctx.clearRect(
+            0,
+            0,
+            aiWidth,
+            aiHeight
+          );
+
+
+          ctx.drawImage(
+            canvasA,
+            0,
+            0
+          );
+
+        }
+
+
+        else {
+
+
+          const timestep =
+            j /
+            (
+              intermediateCount +
+              1
+            );
+
+
+          const timestepTensor =
+            new ort.Tensor(
+
+              "float32",
+
+              new Float32Array([
+                timestep
+              ]),
+
+              [1]
+
+            );
+
+
+          const result =
+            await rife.run({
+
+              img0:
+                img0,
+
+              img1:
+                img1,
+
+              timestep:
+                timestepTensor
+
+            });
+
+
+          tensorToCanvas(
+            result.output
+          );
+
+        }
+
+
+        await videoSource.add(
+
+          outputIndex *
+          frameDuration,
+
+          frameDuration
+
+        );
+
+
+        outputIndex++;
+
+      }
+
+
+      previous =
+        frameCanvas;
+
+
+      frameIndex++;
+
+
+      /* =========================
+         PROGRESS
+      ========================== */
+
+      const progress =
+        Math.min(
+
+          99,
+
+          Math.round(
+
+            (
+              frameIndex /
+              Math.max(
+                1,
+                duration *
+                sourceFPS
+              )
+            ) * 100
+
+          )
+
+        );
+
+
+      status.textContent =
+        "True " +
+        targetFPS +
+        " FPS: " +
+        progress +
+        "%";
+
+
+      /*
+        Beri kesempatan UI
+        HP untuk bernapas.
+      */
+
+      await new Promise(
+        resolve =>
+          setTimeout(
+            resolve,
+            0
+          )
+      );
+
+    }
+
+
+    /* =========================
+       FINALIZE
+    ========================== */
+
+    videoSource.close();
+
+
+    status.textContent =
+      "Menyelesaikan MP4...";
+
+
+    await output.finalize();
+
+
+    const buffer =
+      output.target.buffer;
+
+
+    if (!buffer) {
+
+      throw new Error(
+        "Buffer MP4 kosong."
+      );
+
+    }
+
+
+    const blob =
+      new Blob(
+
+        [buffer],
+
+        {
+          type:
+            "video/mp4"
+        }
+
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    preview.src =
+      url;
+
+
+    preview.style.display =
+      "block";
+
+
+    download.href =
+      url;
+
+
+    download.style.display =
+      "block";
+
+
+    status.textContent =
+      "Selesai! True " +
+      targetFPS +
+      " FPS berhasil dibuat.";
+
+  }
+
+
+  catch (error) {
+
+
+    console.error(
+      "TRUE FPS ERROR:",
+      error
+    );
+
+
+    status.textContent =
+      "True " +
+      targetFPS +
+      " FPS gagal: " +
+      error.message;
+
+
+    alert(
+
+      "True " +
+      targetFPS +
+      " FPS gagal:\n\n" +
+      error.message
+
+    );
+
+  }
+
+
+  finally {
+
+    processButton.disabled =
+      false;
+
+  }
+
+}
+
+
 </script>
 
+
 </body>
+
 </html>
