@@ -39,39 +39,29 @@
       margin-bottom: 25px;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      background: #292929;
-      color: white;
-      border-radius: 10px;
-      border: 1px solid #444;
-    }
-
+    input,
     select,
     button {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
-      border: none;
       border-radius: 10px;
-      font-weight: bold;
       font-size: 15px;
     }
 
+    input,
     select {
       background: #292929;
       color: white;
+      border: 1px solid #444;
     }
 
     button {
+      border: none;
       background: white;
       color: black;
-    }
-
-    button:active {
-      transform: scale(0.98);
+      font-weight: bold;
+      cursor: pointer;
     }
 
     video {
@@ -86,21 +76,22 @@
       margin-top: 20px;
       font-size: 14px;
     }
+
+    #download {
+      display: none;
+      margin-top: 15px;
+      color: white;
+    }
   </style>
 </head>
 
 <body>
 
   <div class="box">
-
     <h1>DIIZAM METHOD</h1>
     <div class="subtitle">Video Processing</div>
 
-    <input
-      type="file"
-      id="videoInput"
-      accept="video/*"
-    >
+    <input type="file" id="videoInput" accept="video/*">
 
     <select id="method">
       <option value="original">Original</option>
@@ -108,9 +99,7 @@
       <option value="120">120 FPS</option>
     </select>
 
-    <button onclick="processVideo()">
-      PROCESS VIDEO
-    </button>
+    <button onclick="processVideo()">PROCESS VIDEO</button>
 
     <video id="preview" controls></video>
 
@@ -118,15 +107,21 @@
       Pilih video terlebih dahulu.
     </div>
 
+    <a id="download" download="diizam-output.mp4">
+      DOWNLOAD VIDEO
+    </a>
   </div>
 
   <script>
     const videoInput = document.getElementById("videoInput");
     const preview = document.getElementById("preview");
     const status = document.getElementById("status");
+    const download = document.getElementById("download");
+
+    const BACKEND_URL =
+      "https://diizam-production.up.railway.app";
 
     videoInput.addEventListener("change", function () {
-
       const file = this.files[0];
 
       if (!file) return;
@@ -136,12 +131,13 @@
       preview.src = url;
       preview.style.display = "block";
 
+      download.style.display = "none";
+
       status.textContent =
         "Video siap. Pilih method lalu tekan PROCESS VIDEO.";
     });
 
-    function processVideo() {
-
+    async function processVideo() {
       const file = videoInput.files[0];
 
       if (!file) {
@@ -149,22 +145,52 @@
         return;
       }
 
-      const method =
-        document.getElementById("method").value;
+      const method = document.getElementById("method").value;
 
-      if (method === "120") {
+      if (method === "original") {
         status.textContent =
-          "120 FPS dipilih. Backend FFmpeg belum terhubung.";
+          "Untuk sementara pilih 60 FPS atau 120 FPS.";
+        return;
       }
 
-      else if (method === "60") {
-        status.textContent =
-          "60 FPS dipilih. Backend FFmpeg belum terhubung.";
-      }
+      status.textContent =
+        "Mengupload dan memproses video... Tunggu.";
 
-      else {
+      download.style.display = "none";
+
+      const formData = new FormData();
+
+      formData.append("video", file);
+      formData.append("fps", method);
+
+      try {
+        const response = await fetch(
+          BACKEND_URL + "/process",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Server gagal memproses video.");
+        }
+
+        const blob = await response.blob();
+
+        const url = URL.createObjectURL(blob);
+
+        download.href = url;
+        download.style.display = "block";
+
         status.textContent =
-          "Original dipilih.";
+          "Selesai! Video berhasil diproses.";
+
+      } catch (error) {
+        console.error(error);
+
+        status.textContent =
+          "Gagal memproses video. Coba lagi.";
       }
     }
   </script>
