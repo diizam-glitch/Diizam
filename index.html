@@ -191,7 +191,23 @@
     /*
       PROCESS VIDEO
     */
+let rifeSession = null;
 
+async function loadRIFE() {
+  if (rifeSession) return rifeSession;
+
+  status.textContent = "Memuat RIFE...";
+
+  rifeSession = await ort.InferenceSession.create(
+    "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
+    {
+      executionProviders: ["webgpu"]
+    }
+  );
+
+  status.textContent = "RIFE siap!";
+  return rifeSession;
+}
     async function processVideo() {
 
       const file =
