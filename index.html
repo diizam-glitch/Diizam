@@ -104,6 +104,7 @@
 </select>
 
     <button onclick="processVideo()">PROCESS VIDEO</button>
+<button onclick="testRIFE()">TEST RIFE</button>
 
     <video id="preview" controls></video>
 
@@ -198,6 +199,21 @@
       }
     }
   </script>
+<script>
+async function testRIFE() {
+  try {
+    const session = await ort.InferenceSession.create(
+      "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
+      {
+        executionProviders: ["webgpu"]
+      }
+    );
 
+    alert("RIFE WebGPU siap!");
+  } catch (error) {
+    alert("RIFE gagal dimuat: " + error.message);
+  }
+}
+</script>
 </body>
 </html>
