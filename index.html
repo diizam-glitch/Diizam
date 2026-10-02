@@ -162,7 +162,7 @@
       const formData = new FormData();
 
       formData.append("video", file);
-      formData.append("fps", method);
+      formData.append("method", method);
 
       try {
         const response = await fetch(
