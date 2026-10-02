@@ -9,9 +9,6 @@
   <!-- ONNX Runtime Web -->
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.29.0/dist/ort.webgpu.min.js"></script>
 
-  <!-- Mediabunny -->
-  <script src="https://cdn.jsdelivr.net/npm/mediabunny@1.61.0/dist/bundles/mediabunny.min.cjs"></script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -111,31 +108,12 @@
   >
 
   <select id="method">
-
-    <option value="original">
-      Original
-    </option>
-
-    <option value="hd">
-      HD Quality
-    </option>
-
-    <option value="60">
-      60 FPS
-    </option>
-
-    <option value="120">
-      120 FPS
-    </option>
-
-    <option value="true60">
-      True 60 FPS
-    </option>
-
-    <option value="true120">
-      True 120 FPS
-    </option>
-
+    <option value="original">Original</option>
+    <option value="hd">HD Quality</option>
+    <option value="60">60 FPS</option>
+    <option value="120">120 FPS</option>
+    <option value="true60">True 60 FPS</option>
+    <option value="true120">True 120 FPS</option>
   </select>
 
   <button onclick="processVideo()">
@@ -169,6 +147,27 @@
 </div>
 
 
+<!-- =========================
+     MEDIABUNNY ESM
+========================= -->
+
+<script type="module">
+
+  import * as Mediabunny
+    from "https://cdn.jsdelivr.net/npm/mediabunny@1.61.0/+esm";
+
+  window.Mediabunny = Mediabunny;
+
+  console.log(
+    "Mediabunny berhasil dimuat:",
+    window.Mediabunny
+  );
+
+  window.MediabunnyReady = true;
+
+</script>
+
+
 <script>
 
 const videoInput =
@@ -186,21 +185,6 @@ const download =
 
 const BACKEND_URL =
   "https://diizam-production.up.railway.app";
-
-
-/* =========================
-   CEK LIBRARY
-========================= */
-
-console.log(
-  "ONNX Runtime:",
-  window.ort
-);
-
-console.log(
-  "Mediabunny:",
-  window.Mediabunny
-);
 
 
 /* =========================
@@ -255,18 +239,13 @@ async function processVideo() {
     document.getElementById("method").value;
 
 
-  /*
-     TRUE FPS SEMENTARA
-     BELUM DIKIRIM KE RAILWAY
-  */
-
   if (
     method === "true60" ||
     method === "true120"
   ) {
 
     status.textContent =
-      "True FPS belum diaktifkan.";
+      "True FPS sedang dalam tahap pengaktifan.";
 
     return;
   }
@@ -336,7 +315,6 @@ async function processVideo() {
 
     download.href =
       url;
-
 
     download.style.display =
       "block";
@@ -462,29 +440,52 @@ async function testCodec() {
   try {
 
     status.textContent =
-      "Mengecek codec video...";
+      "Mengecek Mediabunny...";
 
 
-    if (
-      typeof Mediabunny === "undefined"
+    /*
+      Karena Mediabunny dimuat sebagai
+      ES Module, tunggu sampai siap.
+    */
+
+    let tries = 0;
+
+    while (
+      !window.Mediabunny &&
+      tries < 50
     ) {
 
-      alert(
-        "Mediabunny tidak termuat."
+      await new Promise(
+        resolve =>
+          setTimeout(resolve, 100)
       );
+
+      tries++;
+
+    }
+
+
+    if (!window.Mediabunny) {
+
+      alert(
+        "Mediabunny gagal dimuat."
+      );
+
+      status.textContent =
+        "Mediabunny gagal dimuat.";
 
       return;
     }
 
 
-    console.log(
-      "Mediabunny berhasil dimuat:",
-      Mediabunny
-    );
+    status.textContent =
+      "Mediabunny berhasil dimuat. Mengecek codec...";
 
 
     const codecs =
-      await Mediabunny.getEncodableVideoCodecs();
+      await window.Mediabunny.getEncodableVideoCodecs(
+        ["avc", "vp9", "av1"]
+      );
 
 
     console.log(
@@ -502,6 +503,7 @@ async function testCodec() {
 
 
       alert(
+        "Mediabunny berhasil!\n\n" +
         "H.264 / AVC tersedia!"
       );
 
@@ -510,10 +512,11 @@ async function testCodec() {
     else {
 
       status.textContent =
-        "Mediabunny aktif, tetapi H.264 / AVC tidak tersedia.";
+        "Mediabunny berhasil, tetapi H.264 tidak tersedia.";
+
 
       alert(
-        "Mediabunny aktif.\n\n" +
+        "Mediabunny berhasil dimuat.\n\n" +
         "H.264 / AVC tidak tersedia."
       );
 
