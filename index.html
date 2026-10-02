@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diizam Method</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101010;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      width: 90%;
+      max-width: 500px;
+      padding: 30px 20px;
+      background: #1c1c1c;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #999;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #292929;
+      color: white;
+      border-radius: 10px;
+      border: 1px solid #444;
+    }
+
+    select,
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    select {
+      background: #292929;
+      color: white;
+    }
+
+    button {
+      background: white;
+      color: black;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    video {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #status {
+      color: #aaa;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+
+    <h1>DIIZAM METHOD</h1>
+    <div class="subtitle">Video Processing</div>
+
+    <input
+      type="file"
+      id="videoInput"
+      accept="video/*"
+    >
+
+    <select id="method">
+      <option value="original">Original</option>
+      <option value="60">60 FPS</option>
+      <option value="120">120 FPS</option>
+    </select>
+
+    <button onclick="processVideo()">
+      PROCESS VIDEO
+    </button>
+
+    <video id="preview" controls></video>
+
+    <div id="status">
+      Pilih video terlebih dahulu.
+    </div>
+
+  </div>
+
+  <script>
+    const videoInput = document.getElementById("videoInput");
+    const preview = document.getElementById("preview");
+    const status = document.getElementById("status");
+
+    videoInput.addEventListener("change", function () {
+
+      const file = this.files[0];
+
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
+
+      preview.src = url;
+      preview.style.display = "block";
+
+      status.textContent =
+        "Video siap. Pilih method lalu tekan PROCESS VIDEO.";
+    });
+
+    function processVideo() {
+
+      const file = videoInput.files[0];
+
+      if (!file) {
+        status.textContent = "Pilih video terlebih dahulu.";
+        return;
+      }
+
+      const method =
+        document.getElementById("method").value;
+
+      if (method === "120") {
+        status.textContent =
+          "120 FPS dipilih. Backend FFmpeg belum terhubung.";
+      }
+
+      else if (method === "60") {
+        status.textContent =
+          "60 FPS dipilih. Backend FFmpeg belum terhubung.";
+      }
+
+      else {
+        status.textContent =
+          "Original dipilih.";
+      }
+    }
+  </script>
+
+</body>
+</html>
